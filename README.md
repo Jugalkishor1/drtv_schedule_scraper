@@ -17,6 +17,7 @@ The scraper uses Selenium + Nokogiri to handle dynamic content and extract progr
   - End time
 - Prints schedule to console
 - Exports data to a JSON file
+- Includes basic error handling for page load and scraping failures
 
 ---
 
@@ -24,7 +25,7 @@ The scraper uses Selenium + Nokogiri to handle dynamic content and extract progr
 
 Make sure you have the following installed:
 
-- Ruby (2.6+ recommended)
+- Ruby (2.6+)
 - Google Chrome
 - ChromeDriver (matching your Chrome version)
 
@@ -49,10 +50,10 @@ git clone https://github.com/Jugalkishor1/drtv_schedule_scraper.git
 
 
 ### 4. Run the script.
-    ruby tv_scraper.rb
+    bin/drtv_scraper
 
 ### Or pass a specific date:
-    ruby tv_scraper.rb 2025-01-10
+    bin/drtv_scraper 2025-01-10
 
 
 ---
@@ -65,7 +66,7 @@ DR1: 18:00 - 18:30 | TV-Avisen
 DR2: 18:30 - 19:15 | Dokumentar
 
 JSON output (tv_schedule.json):
-
+```json
 [
   {
     "channel": "DR1",
@@ -74,5 +75,18 @@ JSON output (tv_schedule.json):
     "title": "TV-Avisen"
   }
 ]
-
+```
 ---
+## Future Improvements
+
+Here are some planned improvements for the future. As this is my first exposure to web scraping, I am learning and experimenting more with the process. Once I gain more experience, I will implement the following enhancements as well:
+
+- **Store scraped data in a database**: 
+  This will allow for better data management and querying, making it easier to work with large datasets over time.
+
+- **Schedule periodic scraping using cron jobs**: 
+  This will automate the scraping process, allowing data to be fetched on a daily basis without manual intervention, ensuring the schedule is always up to date.
+
+- etc
+
+I will update this repo with these improvements as I continue learning and expanding my skills in web scraping and Ruby development.
