@@ -15,17 +15,21 @@ class TVScraper
   end
 
   def fetch_page
-    options = Selenium::WebDriver::Chrome::Options.new.tap do |opts|
-      opts.add_argument('--headless')
-      opts.add_argument('--no-sandbox')
-      opts.add_argument('--disable-dev-shm-usage')
-    end
+    options = Selenium::WebDriver::Chrome::Options.new
+    options.add_argument('--headless')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
 
-    @driver = Selenium::WebDriver.for :chrome, options: options
+    @driver = Selenium::WebDriver.for(:chrome, options: options)
     @driver.get(@url)
-    sleep(5)
+    sleep 5
     @doc = Nokogiri::HTML(@driver.page_source)
-    @driver.quit
+
+  rescue Selenium::WebDriver::Error::WebDriverError => e
+    puts "Selenium error while loading page: #{e.message}"
+    @doc = nil
+  ensure
+    @driver&.quit
   end
 
   def parse_schedule
@@ -39,8 +43,6 @@ class TVScraper
 
     schedule_container.css('.channel').each_with_index do |channel_div, index|
       channel_name = channel_names[index] || "Unknown Channel"
-
-      programs_in_channel = channel_div.css('.schedule')
 
       channel_div.css('.schedule').each do |program_div|
         time_text = program_div.at_css('.schedule__time')&.text&.strip
@@ -65,6 +67,16 @@ class TVScraper
     parse_schedule
   end
 
+  def run
+    scrape
+    if @programs.empty?
+      puts "No TV schedule found for #{@date}."
+      return
+    end
+    print_to_console
+    export_to_json
+  end
+
   def print_to_console
     puts "TV Schedule for #{@date}:"
     @programs.each do |program|
@@ -76,11 +88,4 @@ class TVScraper
     File.write(filename, JSON.pretty_generate(@programs))
     puts "Exported to #{filename}"
   end
-
 end
-
-date = ARGV[0] || Date.today.strftime('%Y-%m-%d')
-scraper = TVScraper.new(date)
-scraper.scrape
-scraper.print_to_console
-scraper.export_to_json
